@@ -10,7 +10,7 @@ let dailyAIQuotes = { zh: [], en: [], ja: [] };
 // --- 多語系與 AI 格言載入 ---
 async function loadDailyQuotes() {
     try {
-        const response = await fetch('daily_quotes.json');
+        const response = await fetch('data/daily_quotes.json');
         if (response.ok) {
             dailyAIQuotes = await response.json();
         }
@@ -92,11 +92,10 @@ const getModeConfig = () => ({
 
 let timeLeft = 25 * 60;
 let totalTime = 25 * 60;
-let rafId = null;
-let startTime = null;
-let initialTimeLeft = null;
+let timerWorker = null;
 let currentMode = 'FOCUS';
 let completedPomos = 0;
+let isNotificationEnabled = localStorage.getItem('muda_notifications') === 'true';
 
 let stats = JSON.parse(localStorage.getItem('muda_stats')) || {
     pomos: 0,
@@ -137,8 +136,29 @@ const elements = {
     customModal: document.getElementById('custom-time-modal'),
     customInput: document.getElementById('custom-minutes-input'),
     saveCustomTime: document.getElementById('save-custom-time'),
-    cancelCustomTime: document.getElementById('cancel-custom-time')
+    cancelCustomTime: document.getElementById('cancel-custom-time'),
+    notiToggle: document.getElementById('noti-toggle')
 };
+
+// --- Web Worker 初始化 ---
+function initWorker() {
+    if (window.Worker) {
+        timerWorker = new Worker('js/timer_worker.js');
+        timerWorker.onmessage = function(e) {
+            const { type, timeLeft: workerTimeLeft } = e.data;
+            if (type === 'tick') {
+                timeLeft = workerTimeLeft;
+                updateDisplay();
+            } else if (type === 'finish') {
+                timeLeft = 0;
+                updateDisplay();
+                handleFinish();
+            }
+        };
+    } else {
+        console.error("Web Workers are not supported in this browser.");
+    }
+}
 
 // --- 進度環 ---
 const CIRCLE_RADIUS = 140;
@@ -162,6 +182,39 @@ function updateDisplay() {
     const percent = totalTime > 0 ? (timeLeft / totalTime) * 100 : 0;
     setProgress(percent);
     document.title = `${elements.minutes.textContent}:${elements.seconds.textContent} - ${t('title')}`;
+}
+
+// --- 通知功能 ---
+async function requestNotificationPermission() {
+    if (!("Notification" in window)) return false;
+    
+    if (Notification.permission === "granted") {
+        isNotificationEnabled = !isNotificationEnabled;
+    } else if (Notification.permission !== "denied") {
+        const permission = await Notification.requestPermission();
+        isNotificationEnabled = (permission === "granted");
+    } else {
+        alert(t('notify_permission_denied'));
+        isNotificationEnabled = false;
+    }
+    
+    localStorage.setItem('muda_notifications', isNotificationEnabled);
+    updateNotiUI();
+    return isNotificationEnabled;
+}
+
+function updateNotiUI() {
+    if (!elements.notiToggle) return;
+    elements.notiToggle.classList.toggle('active', isNotificationEnabled);
+}
+
+function sendNotification(title, body) {
+    if (isNotificationEnabled && Notification.permission === "granted") {
+        new Notification(title, {
+            body: body,
+            icon: 'assets/images/logo.png'
+        });
+    }
 }
 
 // --- 紀錄 ---
@@ -195,35 +248,19 @@ function addLog(msg) {
 
 // --- 計時器控制器 ---
 function startTimer() {
-    if (rafId !== null) return;
+    if (!timerWorker) initWorker();
+    
     elements.startBtn.disabled = true;
     elements.pauseBtn.disabled = false;
     if (elements.bgVideo) elements.bgVideo.style.filter = "brightness(0.6) blur(0px)";
     document.querySelector('.timer-display').classList.add('running');
-    startTime = performance.now();
-    initialTimeLeft = timeLeft;
-
-    function tick(currentTime) {
-        const elapsed = (currentTime - startTime) / 1000;
-        const newTimeLeft = Math.max(0, initialTimeLeft - Math.floor(elapsed));
-        if (newTimeLeft !== timeLeft) {
-            timeLeft = newTimeLeft;
-            updateDisplay();
-        }
-        if (timeLeft > 0) {
-            rafId = requestAnimationFrame(tick);
-        } else {
-            rafId = null;
-            handleFinish();
-        }
-    }
-    rafId = requestAnimationFrame(tick);
+    
+    timerWorker.postMessage({ action: 'start', value: timeLeft });
 }
 
 function pauseTimer() {
-    if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
+    if (timerWorker) {
+        timerWorker.postMessage({ action: 'pause' });
     }
     elements.startBtn.disabled = false;
     elements.pauseBtn.disabled = true;
@@ -234,6 +271,9 @@ function pauseTimer() {
 function resetTimer() {
     pauseTimer();
     timeLeft = totalTime;
+    if (timerWorker) {
+        timerWorker.postMessage({ action: 'reset', value: timeLeft });
+    }
     updateDisplay();
 }
 
@@ -253,15 +293,20 @@ function setMode(modeKey, customMinutes = null) {
 
 function handleFinish() {
     if (elements.bellSound) elements.bellSound.play();
+    
+    const notifyTitle = t('notify_finish_title');
+    
     if (currentMode === 'FOCUS') {
         completedPomos++;
         stats.pomos++;
         stats.minutes += Math.floor(totalTime / 60);
         addLog(t('log_finish_focus', { min: Math.floor(totalTime / 60) }));
+        sendNotification(notifyTitle, t('notify_finish_focus'));
         showWisdomModal();
     } else {
         const modeLabel = currentMode === 'SHORT_BREAK' ? t('short_break') : t('long_break');
         addLog(t('log_finish_break', { mode: modeLabel }));
+        sendNotification(notifyTitle, t('notify_finish_break'));
         if (completedPomos % 4 === 0 && completedPomos > 0) {
             setMode('LONG_BREAK');
         } else {
@@ -337,6 +382,7 @@ elements.saveCustomTime.onclick = () => {
     } else alert(t('alert_invalid_time'));
 };
 elements.cancelCustomTime.onclick = () => elements.customModal.classList.add('hidden');
+elements.notiToggle.onclick = requestNotificationPermission;
 document.getElementById('work-mode').onclick = () => setMode('FOCUS');
 document.getElementById('short-break-mode').onclick = () => setMode('SHORT_BREAK');
 document.getElementById('long-break-mode').onclick = () => setMode('LONG_BREAK');
@@ -363,6 +409,8 @@ document.addEventListener('click', () => { elements.themeOptions.classList.add('
     setLanguage(detectLanguage());
     const savedTheme = localStorage.getItem('muda_theme') || 'red';
     setTheme(savedTheme);
+    initWorker();
+    updateNotiUI();
     renderStats();
     updateDisplay();
     addLog(t('log_start'));

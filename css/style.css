@@ -152,6 +152,13 @@ header p {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
+.icon-toggle-btn.active {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    box-shadow: 0 0 15px rgba(255, 138, 138, 0.3);
+}
+
 .options-panel, .theme-options {
     position: absolute;
     top: calc(100% + 10px);

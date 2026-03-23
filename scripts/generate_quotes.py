@@ -91,10 +91,10 @@ def generate_quotes():
                     quotes_data = json.loads(content)
                     
                     # 儲存到檔案
-                    with open("daily_quotes.json", "w", encoding="utf-8") as f:
+                    with open("data/daily_quotes.json", "w", encoding="utf-8") as f:
                         json.dump(quotes_data, f, ensure_ascii=False, indent=4)
                         
-                    print(f"Successfully generated daily_quotes.json using {model_id} ({version})")
+                    print(f"Successfully generated data/daily_quotes.json using {model_id} ({version})")
                     return # 成功後退出
                     
                 except Exception as e:
@@ -112,13 +112,13 @@ def generate_quotes():
 
     # 如果所有組合都失敗，確保檔案存在
     print(f"\n[CRITICAL] All available models failed.")
-    if not os.path.exists("daily_quotes.json"):
+    if not os.path.exists("data/daily_quotes.json"):
         fallback = {
             "zh": ["暫時保持平靜，等待靈感回歸。"],
             "en": ["Stay calm for now, waiting for inspiration to return."],
             "ja": ["今は穏やかに、インスピレーションが戻るのを待ちましょう。"]
         }
-        with open("daily_quotes.json", "w", encoding="utf-8") as f:
+        with open("data/daily_quotes.json", "w", encoding="utf-8") as f:
             json.dump(fallback, f, ensure_ascii=False, indent=4)
         print("Used fallback quotes.")
 
