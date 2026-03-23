@@ -4,6 +4,8 @@
 
 「脈環漏」——諧音自閩南語的「別擔心」（mài huân-ló）。這不僅是一個番茄鐘，更是一場關於心靈修復的視覺與感官旅程。
 
+![Mind From Roast Screenshot](screenshots/screenshot.png)
+
 ---
 
 ## 品牌理念 (Brand Concept)
@@ -16,7 +18,7 @@
 - **環 (Huán)**：代表「環形時鐘（Circular Clock）」，產品核心的 SVG 進度環視覺。
 - **漏 (Lòu)**：代表「沙漏感（Hourglass）」，時間緩緩流逝，帶走焦慮，留下智慧。
 
-不論是 脈環漏 還是 Mind From Roast，這三個字合起來，正是閩南語中那句最溫暖的安慰：**「免煩惱（別擔心）」**。
+不論是「脈環漏」還是 Mind From Roast，這三個字合起來，正是閩南語中那句最溫暖的安慰：**「免煩惱（別擔心）」**。
 
 ---
 
