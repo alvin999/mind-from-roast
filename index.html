@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind From Roast | 脈環漏 - 療癒番茄鐘</title>
+    <link rel="icon" type="image/png" href="/home/alvin/.gemini/antigravity/brain/a1c90cac-2034-4ba0-b195-4b457042fa6c/mind_from_roast_icon_1774257459180.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 影片背景 -->
+    <div class="video-background">
+        <video autoplay muted loop playsinline id="bg-video">
+            <source src="bg_pingpong.mp4" type="video/mp4">
+        </video>
+        <div class="overlay"></div>
+    </div>
+
+    <!-- 番茄鐘主體 -->
+    <main class="container">
+        <div class="glass-panel">
+                <header>
+                <h1 id="status-text">Focus Time</h1>
+                <p id="quote">Take a deep breath.</p>
+                <div class="theme-menu">
+                    <button id="theme-toggle" class="theme-toggle-btn">
+                        <span class="current-theme-dot"></span>
+                        <span class="toggle-label">Theme</span>
+                    </button>
+                    <div id="theme-options" class="theme-options hidden">
+                        <button class="theme-dot" data-theme="red" style="background: #ff8a8a;" title="Rose"></button>
+                        <button class="theme-dot" data-theme="blue" style="background: #8ab6ff;" title="Ocean"></button>
+                        <button class="theme-dot" data-theme="green" style="background: #8affad;" title="Forest"></button>
+                        <button class="theme-dot" data-theme="yellow" style="background: #fffa8a;" title="Sunshine"></button>
+                        <button class="theme-dot" data-theme="purple" style="background: #d18aff;" title="Lavender"></button>
+                        <button class="theme-dot" data-theme="orange" style="background: #ffb38a;" title="Sunset"></button>
+                        <button class="theme-dot" data-theme="teal" style="background: #8afff2;" title="Mint"></button>
+                        <button class="theme-dot" data-theme="gray" style="background: #d1d1d1;" title="Mist"></button>
+                        
+                        <div class="theme-divider"></div>
+                        
+                        <button class="theme-dot" data-theme="midnight" style="background: #1e3a5f;" title="Midnight"></button>
+                        <button class="theme-dot" data-theme="espresso" style="background: #3e2723;" title="Espresso"></button>
+                        <button class="theme-dot" data-theme="evergreen" style="background: #1b5e20;" title="Evergreen"></button>
+                        <button class="theme-dot" data-theme="bordeaux" style="background: #880e4f;" title="Bordeaux"></button>
+                        <button class="theme-dot" data-theme="amethyst" style="background: #4a148c;" title="Amethyst"></button>
+                        <button class="theme-dot" data-theme="coal" style="background: #212121;" title="Coal"></button>
+                        <button class="theme-dot" data-theme="space" style="background: #0d1b2a;" title="Space"></button>
+                        <button class="theme-dot" data-theme="graphite" style="background: #424242;" title="Graphite"></button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="timer-container">
+                <svg class="progress-ring" width="300" height="300">
+                    <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="transparent" r="140" cx="150" cy="150"/>
+                    <circle id="progress-indicator" class="progress-ring__circle" stroke="var(--accent-color)" stroke-width="8" stroke-linecap="round" fill="transparent" r="140" cx="150" cy="150"/>
+                </svg>
+                <div class="timer-display">
+                    <span id="minutes">25</span>:<span id="seconds">00</span>
+                </div>
+            </div>
+
+            <div class="duration-selector">
+                <button class="duration-btn" data-time="25">25</button>
+                <button class="duration-btn" data-time="45">45</button>
+                <button class="duration-btn" data-time="60">60</button>
+                <button id="custom-time-btn" class="duration-btn">Custom</button>
+            </div>
+
+            <div class="controls">
+                <button id="start-btn" class="btn primary">Start Focus</button>
+                <button id="pause-btn" class="btn secondary" disabled>Pause</button>
+                <button id="reset-btn" class="btn tertiary">Reset</button>
+            </div>
+
+            <div class="modes">
+                <button id="work-mode" class="mode-btn active">Focus</button>
+                <button id="short-break-mode" class="mode-btn">Short Break</button>
+                <button id="long-break-mode" class="mode-btn">Long Break</button>
+            </div>
+        </div>
+
+        <!-- 今日紀錄面板 -->
+        <div class="records-panel glass-panel">
+            <h3>Today's Flow</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value" id="stat-pomos">0</span>
+                    <span class="stat-label">Pomodoros</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="stat-minutes">0</span>
+                    <span class="stat-label">Minutes</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="stat-wisdom">0</span>
+                    <span class="stat-label">Wisdom</span>
+                </div>
+            </div>
+            <div id="log-container" class="log-list">
+                <!-- Log entries will be added here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 智慧問答彈窗 -->
+    <div id="wisdom-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2>Wisdom Moment</h2>
+                <p>專注時段結束了，給心靈一點空間...</p>
+            </div>
+            <div class="modal-body">
+                <p class="question">這件事，目前能解決嗎？</p>
+                <div class="wisdom-actions">
+                    <button id="solve-yes" class="btn primary">能解決</button>
+                    <button id="solve-no" class="btn primary">暫時不能</button>
+                </div>
+            </div>
+            <div id="wisdom-result" class="modal-footer hidden">
+                <p id="wisdom-message"></p>
+                <button id="close-modal" class="btn secondary">好的，放下吧</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自訂時間彈窗 -->
+    <div id="custom-time-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2>Set Focus Duration</h2>
+                <p>設定您的專注長度 (1-120 分鐘)</p>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <input type="number" id="custom-minutes-input" min="1" max="120" value="25">
+                    <span>min</span>
+                </div>
+                <div class="modal-actions">
+                    <button id="save-custom-time" class="btn primary">確認設定</button>
+                    <button id="cancel-custom-time" class="btn secondary">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 音效庫 (靜音載入) -->
+    <audio id="bell-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <script src="main.js"></script>
+</body>
+</html>
