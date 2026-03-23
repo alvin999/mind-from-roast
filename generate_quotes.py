@@ -50,20 +50,27 @@ def generate_quotes():
             # 取得該用戶權限下所有可用的模型清單
             available_models = []
             try:
-                available_models = [m.name for m in client.models.list() if 'generateContent' in m.supported_methods]
-                # 過濾掉 'models/' 前置字串
-                available_models = [m.replace('models/', '') for m in available_models]
+                for m in client.models.list():
+                    m_name = m.name.replace('models/', '')
+                    # 只要名字包含 gemini 且不是一些特殊用途的模型就加入
+                    if 'gemini' in m_name.lower():
+                        available_models.append(m_name)
             except Exception as le:
                 print(f"  Warning: Could not list models for {version}: {le}")
                 available_models = priority_models # 降級使用預設清單
             
-            # 將優先模型排序到最前面
+            # 建立測試隊列
             test_queue = []
+            # 先加入優先模型 (如果存在於可用清單中)
             for pm in priority_models:
                 if pm in available_models:
                     test_queue.append(pm)
                     available_models.remove(pm)
-            test_queue.extend(available_models) # 加入剩餘的其他可用模型
+            # 再加入剩下的所有模型
+            test_queue.extend(available_models)
+            # 確保 1.0 Pro 一定在隊列中作為最後保險
+            if "gemini-1.0-pro" not in test_queue:
+                test_queue.append("gemini-1.0-pro")
 
             for model_id in test_queue:
                 try:
