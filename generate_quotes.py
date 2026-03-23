@@ -13,13 +13,6 @@ if not api_key:
     print("Error: GEMINI_API_KEY not found.")
     exit(1)
 
-def get_client(version='v1'):
-    """建立指定 API 版本的 Client"""
-    return genai.Client(
-        api_key=api_key,
-        http_options={'api_version': version}
-    )
-
 def generate_quotes():
     prompt = """
     Please generate 5 unique healing and encouraging quotes for a Pomodoro timer app.
@@ -35,63 +28,83 @@ def generate_quotes():
     }
     """
     
-    # 嘗試的 API 版本
+    # 嘗試的 API 版本 (v1 通常包含大部分穩定模型, v1beta 則有最新實驗模型)
     api_versions = ['v1', 'v1beta']
     
-    # 嘗試的模型清單
-    models_to_try = [
+    # 優先嘗試的關鍵模型 (優先級從高到低)
+    priority_models = [
         "gemini-1.5-flash-002",
-        "gemini-1.5-flash-001",
         "gemini-1.5-flash",
-        "gemini-1.5-flash-8b",
         "gemini-2.0-flash",
-        "gemini-1.0-pro"  # 最後的保險
+        "gemini-1.5-flash-8b",
+        "gemini-1.0-pro"
     ]
     
     last_error = ""
     
     for version in api_versions:
-        print(f"--- Switching to API version: {version} ---")
-        client = get_client(version)
-        
-        for model_id in models_to_try:
+        print(f"\n--- Trying API Version: {version} ---")
+        try:
+            client = genai.Client(api_key=api_key, http_options={'api_version': version})
+            
+            # 取得該用戶權限下所有可用的模型清單
+            available_models = []
             try:
-                print(f"Attempting {model_id} ({version})...")
-                response = client.models.generate_content(
-                    model=model_id,
-                    contents=prompt
-                )
-                
-                content = response.text
-                
-                # 清理 Markdown 標記
-                if "```json" in content:
-                    content = content.split("```json")[1].split("```")[0].strip()
-                elif "```" in content:
-                    content = content.split("```")[1].split("```")[0].strip()
-                    
-                quotes_data = json.loads(content)
-                
-                # 儲存到檔案
-                with open("daily_quotes.json", "w", encoding="utf-8") as f:
-                    json.dump(quotes_data, f, ensure_ascii=False, indent=4)
-                    
-                print(f"Successfully generated daily_quotes.json using {model_id} ({version})")
-                return # 成功後退出
-                
-            except Exception as e:
-                last_error = str(e)
-                # 簡化錯誤訊息輸出
-                short_error = last_error[:100] + "..." if len(last_error) > 100 else last_error
-                print(f"  Result: Failed. ({short_error})")
-                
-                if "429" in last_error:
-                    print(f"  Tip: {model_id} quota exceeded.")
-                
-                continue # 嘗試下一個模型
+                available_models = [m.name for m in client.models.list() if 'generateContent' in m.supported_methods]
+                # 過濾掉 'models/' 前置字串
+                available_models = [m.replace('models/', '') for m in available_models]
+            except Exception as le:
+                print(f"  Warning: Could not list models for {version}: {le}")
+                available_models = priority_models # 降級使用預設清單
+            
+            # 將優先模型排序到最前面
+            test_queue = []
+            for pm in priority_models:
+                if pm in available_models:
+                    test_queue.append(pm)
+                    available_models.remove(pm)
+            test_queue.extend(available_models) # 加入剩餘的其他可用模型
 
-    # 如果所有組合都失敗，確保檔案存在避免前端報錯
-    print(f"\n[CRITICAL] All models and API versions failed.")
+            for model_id in test_queue:
+                try:
+                    print(f"Attempting {model_id}...")
+                    response = client.models.generate_content(
+                        model=model_id,
+                        contents=prompt
+                    )
+                    
+                    content = response.text
+                    
+                    # 清理 Markdown 標記
+                    if "```json" in content:
+                        content = content.split("```json")[1].split("```")[0].strip()
+                    elif "```" in content:
+                        content = content.split("```")[1].split("```")[0].strip()
+                        
+                    quotes_data = json.loads(content)
+                    
+                    # 儲存到檔案
+                    with open("daily_quotes.json", "w", encoding="utf-8") as f:
+                        json.dump(quotes_data, f, ensure_ascii=False, indent=4)
+                        
+                    print(f"Successfully generated daily_quotes.json using {model_id} ({version})")
+                    return # 成功後退出
+                    
+                except Exception as e:
+                    last_error = str(e)
+                    if "429" in last_error:
+                        print(f"  {model_id}: Quota exceeded.")
+                    elif "404" in last_error:
+                        print(f"  {model_id}: Not found.")
+                    else:
+                        print(f"  {model_id}: Error occurred.")
+                    continue
+
+        except Exception as ve:
+            print(f"  API Version {version} is not accessible: {ve}")
+
+    # 如果所有組合都失敗，確保檔案存在
+    print(f"\n[CRITICAL] All available models failed.")
     if not os.path.exists("daily_quotes.json"):
         fallback = {
             "zh": ["暫時保持平靜，等待靈感回歸。"],
