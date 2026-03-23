@@ -13,8 +13,11 @@ if not api_key:
     print("Error: GEMINI_API_KEY not found.")
     exit(1)
 
-# 初始化最新版 Client
-client = genai.Client(api_key=api_key)
+# 初始化最新版 Client (強制使用 v1 版本以避免 v1beta 的 404 錯誤)
+client = genai.Client(
+    api_key=api_key,
+    http_options={'api_version': 'v1'}
+)
 
 def generate_quotes():
     prompt = """
@@ -31,13 +34,15 @@ def generate_quotes():
     }
     """
     
-    # 嘗試的模型清單 (包含多種變體以對應 404 或配額問題)
+    # 嘗試的模型清單 (精確型號通常更穩定)
     models_to_try = [
+        "gemini-1.5-flash-002",
+        "gemini-1.5-flash-001",
         "gemini-1.5-flash",
-        "gemini-1.5-flash-latest",
+        "gemini-1.5-flash-8b-001",
         "gemini-1.5-flash-8b",
-        "gemini-2.0-flash",
-        "gemini-1.5-pro"
+        "gemini-2.0-flash-001",
+        "gemini-2.0-flash"
     ]
     
     last_error = ""
