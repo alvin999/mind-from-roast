@@ -25,6 +25,8 @@
 ## 核心功能 (Core Features)
 
 - **🌀 脈動環儀表**：動態 SVG 進度環，與呼吸頻率同步的發光微動效。
+- **⏱️ 背景穩定計時**：採用 Web Worker 技術，確保分頁進入背景或最小化時計時依然精確，不被瀏覽器節流。
+- **🔔 系統級通知**：整合 Notifications API，時間結束時即使在其他視窗也能收到提醒（配有輕靈的風鈴聲）。
 - **🧠 智慧問答**：每段專注結束後觸發「智慧時刻」，引導您放下當下的執著與擔憂。
 - **🎭 多樣化主題**：內建 16 種療癒配色，涵蓋明亮的「明色系」與深度專注的「沉靜深色系」。
 - **📜 專注日誌**：使用 `localStorage` 自動紀錄您今日的產出、專注分鐘與智慧瞬間。
@@ -35,19 +37,39 @@
 
 ## 技術架構 (Technological Stack)
 
-- **核心**：Vanilla JS (ES6+), HTML5, CSS3
+- **核心**：Vanilla JS (ES6+), HTML5, CSS3, Web Workers API
 - **設計系統**：Glassmorphism (玻璃擬態), SVG Filter Animation
 - **多媒體處理**：FFmpeg (Ping-Pong Loop Filter)
-- **資料儲存**：Local Storage API
+- **資料儲存**：Local Storage API, Notifications API
+- **自動化**：GitHub Actions (Gemini AI 每日格言更新)
+
+---
+
+## 目錄結構 (Directory Structure)
+
+```bash
+mind-from-roast/
+├── assets/
+│   ├── audio/      # 療癒音效 (風鈴)
+│   ├── video/      # 背景影片 (無縫循環)
+│   └── images/     # 項目圖示與 Logo
+├── css/            # 樣式表 (Vannila CSS)
+├── data/           # 每日格言 JSON (由 AI 自動更新)
+├── js/             # 核心邏輯、多語系與 Worker
+├── scripts/        # 自動化維護腳本 (Python)
+├── index.html      # 入口文件
+└── README.md
+```
 
 ---
 
 ## 如何開始 (Quick Start)
 
 1. 開啟 `index.html`。
-2. 在頂部 **Theme** 選單選擇您心儀的色系。
-3. 點選時間快速球（25/45/60）或自訂分鐘。
-4. 點擊 **Start Focus**，開始您的心靈之旅。
+2. 點擊右上角 **鈴鐺圖示** 開啟系統通知權限 (推薦)。
+3. 在頂部 **Theme** 選單選擇您心儀的色系。
+4. 點選時間快速球（25/45/60）或自訂分鐘。
+5. 點擊 **Start Focus**，開始您的心靈之旅。
 
 ---
 
