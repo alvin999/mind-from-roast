@@ -31,8 +31,14 @@ def generate_quotes():
     }
     """
     
-    # 嘗試的模型清單 (優先使用中使用者要求的 1.5)
-    models_to_try = ["gemini-1.5-flash", "gemini-2.0-flash"]
+    # 嘗試的模型清單 (包含多種變體以對應 404 或配額問題)
+    models_to_try = [
+        "gemini-1.5-flash",
+        "gemini-1.5-flash-latest",
+        "gemini-1.5-flash-8b",
+        "gemini-2.0-flash",
+        "gemini-1.5-pro"
+    ]
     
     last_error = ""
     for model_id in models_to_try:
