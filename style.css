@@ -119,41 +119,40 @@ header p {
     margin-bottom: 20px;
 }
 
-.theme-menu {
-    position: relative;
-    display: inline-block;
+.header-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
     margin-bottom: 30px;
 }
 
-.theme-toggle-btn {
+.lang-menu, .theme-menu {
+    position: relative;
+    display: inline-block;
+}
+
+.icon-toggle-btn, .theme-toggle-btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 6px 14px;
+    padding: 8px 16px;
     border-radius: 20px;
     cursor: pointer;
     color: white;
     font-family: inherit;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     transition: all 0.3s ease;
 }
 
-.theme-toggle-btn:hover {
+.icon-toggle-btn:hover, .theme-toggle-btn:hover {
     background: rgba(255, 255, 255, 0.2);
     border-color: rgba(255, 255, 255, 0.3);
 }
 
-.current-theme-dot {
-    width: 12px;
-    height: 12px;
-    background-color: var(--accent-color);
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--accent-color);
-}
-
-.theme-options {
+.options-panel, .theme-options {
     position: absolute;
     top: calc(100% + 10px);
     left: 50%;
@@ -161,17 +160,51 @@ header p {
     background: rgba(30, 30, 30, 0.8);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    padding: 12px;
+    padding: 10px;
     border-radius: 18px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
     z-index: 50;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    opacity: 1;
-    visibility: visible;
+}
+
+.options-panel.hidden, .theme-options.hidden {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) translateY(-10px);
+    pointer-events: none;
+}
+
+.lang-option {
+    display: block;
+    width: 100%;
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+.lang-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.lang-option.active {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.theme-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 12px;
 }
 
 .theme-options.hidden {

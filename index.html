@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="translations.js"></script>
 </head>
 <body>
     <!-- 影片背景 -->
@@ -23,33 +24,46 @@
     <main class="container">
         <div class="glass-panel">
                 <header>
-                <h1 id="status-text">Focus Time</h1>
-                <p id="quote">Take a deep breath.</p>
-                <div class="theme-menu">
-                    <button id="theme-toggle" class="theme-toggle-btn">
-                        <span class="current-theme-dot"></span>
-                        <span class="toggle-label">Theme</span>
-                    </button>
-                    <div id="theme-options" class="theme-options hidden">
-                        <button class="theme-dot" data-theme="red" style="background: #ff8a8a;" title="Rose"></button>
-                        <button class="theme-dot" data-theme="blue" style="background: #8ab6ff;" title="Ocean"></button>
-                        <button class="theme-dot" data-theme="green" style="background: #8affad;" title="Forest"></button>
-                        <button class="theme-dot" data-theme="yellow" style="background: #fffa8a;" title="Sunshine"></button>
-                        <button class="theme-dot" data-theme="purple" style="background: #d18aff;" title="Lavender"></button>
-                        <button class="theme-dot" data-theme="orange" style="background: #ffb38a;" title="Sunset"></button>
-                        <button class="theme-dot" data-theme="teal" style="background: #8afff2;" title="Mint"></button>
-                        <button class="theme-dot" data-theme="gray" style="background: #d1d1d1;" title="Mist"></button>
-                        
-                        <div class="theme-divider"></div>
-                        
-                        <button class="theme-dot" data-theme="midnight" style="background: #1e3a5f;" title="Midnight"></button>
-                        <button class="theme-dot" data-theme="espresso" style="background: #3e2723;" title="Espresso"></button>
-                        <button class="theme-dot" data-theme="evergreen" style="background: #1b5e20;" title="Evergreen"></button>
-                        <button class="theme-dot" data-theme="bordeaux" style="background: #880e4f;" title="Bordeaux"></button>
-                        <button class="theme-dot" data-theme="amethyst" style="background: #4a148c;" title="Amethyst"></button>
-                        <button class="theme-dot" data-theme="coal" style="background: #212121;" title="Coal"></button>
-                        <button class="theme-dot" data-theme="space" style="background: #0d1b2a;" title="Space"></button>
-                        <button class="theme-dot" data-theme="graphite" style="background: #424242;" title="Graphite"></button>
+                <h1 id="status-text" data-i18n="focus_time">Focus Time</h1>
+                <p id="quote" data-i18n="take_breath">Take a deep breath.</p>
+                <div class="header-controls">
+                    <div class="lang-menu">
+                        <button id="lang-toggle" class="icon-toggle-btn" title="Change Language">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        </button>
+                        <div id="lang-options" class="options-panel hidden">
+                            <button class="lang-option" data-lang="zh">繁體中文</button>
+                            <button class="lang-option" data-lang="en">English</button>
+                            <button class="lang-option" data-lang="ja">日本語</button>
+                        </div>
+                    </div>
+
+                    <div class="theme-menu">
+                        <button id="theme-toggle" class="theme-toggle-btn">
+                            <span class="current-theme-dot"></span>
+                            <span class="toggle-label" data-i18n="theme">Theme</span>
+                        </button>
+                        <div id="theme-options" class="theme-options hidden">
+                            <button class="theme-dot" data-theme="red" style="background: #ff8a8a;" title="Rose"></button>
+                            <button class="theme-dot" data-theme="blue" style="background: #8ab6ff;" title="Ocean"></button>
+                            <button class="theme-dot" data-theme="green" style="background: #8affad;" title="Forest"></button>
+                            <button class="theme-dot" data-theme="yellow" style="background: #fffa8a;" title="Sunshine"></button>
+                            <button class="theme-dot" data-theme="purple" style="background: #d18aff;" title="Lavender"></button>
+                            <button class="theme-dot" data-theme="orange" style="background: #ffb38a;" title="Sunset"></button>
+                            <button class="theme-dot" data-theme="teal" style="background: #8afff2;" title="Mint"></button>
+                            <button class="theme-dot" data-theme="gray" style="background: #d1d1d1;" title="Mist"></button>
+                            
+                            <div class="theme-divider"></div>
+                            
+                            <button class="theme-dot" data-theme="midnight" style="background: #1e3a5f;" title="Midnight"></button>
+                            <button class="theme-dot" data-theme="espresso" style="background: #3e2723;" title="Espresso"></button>
+                            <button class="theme-dot" data-theme="evergreen" style="background: #1b5e20;" title="Evergreen"></button>
+                            <button class="theme-dot" data-theme="bordeaux" style="background: #880e4f;" title="Bordeaux"></button>
+                            <button class="theme-dot" data-theme="amethyst" style="background: #4a148c;" title="Amethyst"></button>
+                            <button class="theme-dot" data-theme="coal" style="background: #212121;" title="Coal"></button>
+                            <button class="theme-dot" data-theme="space" style="background: #0d1b2a;" title="Space"></button>
+                            <button class="theme-dot" data-theme="graphite" style="background: #424242;" title="Graphite"></button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -68,37 +82,37 @@
                 <button class="duration-btn" data-time="25">25</button>
                 <button class="duration-btn" data-time="45">45</button>
                 <button class="duration-btn" data-time="60">60</button>
-                <button id="custom-time-btn" class="duration-btn">Custom</button>
+                <button id="custom-time-btn" class="duration-btn" data-i18n="custom">Custom</button>
             </div>
 
             <div class="controls">
-                <button id="start-btn" class="btn primary">Start Focus</button>
-                <button id="pause-btn" class="btn secondary" disabled>Pause</button>
-                <button id="reset-btn" class="btn tertiary">Reset</button>
+                <button id="start-btn" class="btn primary" data-i18n="start_focus">Start Focus</button>
+                <button id="pause-btn" class="btn secondary" data-i18n="pause" disabled>Pause</button>
+                <button id="reset-btn" class="btn tertiary" data-i18n="reset">Reset</button>
             </div>
 
             <div class="modes">
-                <button id="work-mode" class="mode-btn active">Focus</button>
-                <button id="short-break-mode" class="mode-btn">Short Break</button>
-                <button id="long-break-mode" class="mode-btn">Long Break</button>
+                <button id="work-mode" class="mode-btn active" data-i18n="focus_time">Focus</button>
+                <button id="short-break-mode" class="mode-btn" data-i18n="short_break">Short Break</button>
+                <button id="long-break-mode" class="mode-btn" data-i18n="long_break">Long Break</button>
             </div>
         </div>
 
         <!-- 今日紀錄面板 -->
         <div class="records-panel glass-panel">
-            <h3>Today's Flow</h3>
+            <h3 data-i18n="today_flow">Today's Flow</h3>
             <div class="stats-grid">
                 <div class="stat-card">
                     <span class="stat-value" id="stat-pomos">0</span>
-                    <span class="stat-label">Pomodoros</span>
+                    <span class="stat-label" data-i18n="pomodoros">Pomodoros</span>
                 </div>
                 <div class="stat-card">
                     <span class="stat-value" id="stat-minutes">0</span>
-                    <span class="stat-label">Minutes</span>
+                    <span class="stat-label" data-i18n="minutes">Minutes</span>
                 </div>
                 <div class="stat-card">
                     <span class="stat-value" id="stat-wisdom">0</span>
-                    <span class="stat-label">Wisdom</span>
+                    <span class="stat-label" data-i18n="wisdom">Wisdom</span>
                 </div>
             </div>
             <div id="log-container" class="log-list">
@@ -111,19 +125,19 @@
     <div id="wisdom-modal" class="modal-overlay hidden">
         <div class="modal-content glass-panel">
             <div class="modal-header">
-                <h2>Wisdom Moment</h2>
-                <p>專注時段結束了，給心靈一點空間...</p>
+                <h2 data-i18n="wisdom_moment">Wisdom Moment</h2>
+                <p data-i18n="wisdom_desc">專注時段結束了，給心靈一點空間...</p>
             </div>
             <div class="modal-body">
-                <p class="question">這件事，目前能解決嗎？</p>
+                <p class="question" data-i18n="wisdom_question">這件事，目前能解決嗎？</p>
                 <div class="wisdom-actions">
-                    <button id="solve-yes" class="btn primary">能解決</button>
-                    <button id="solve-no" class="btn primary">暫時不能</button>
+                    <button id="solve-yes" class="btn primary" data-i18n="solve_yes">能解決</button>
+                    <button id="solve-no" class="btn primary" data-i18n="solve_no">暫時不能</button>
                 </div>
             </div>
             <div id="wisdom-result" class="modal-footer hidden">
                 <p id="wisdom-message"></p>
-                <button id="close-modal" class="btn secondary">好的，放下吧</button>
+                <button id="close-modal" class="btn secondary" data-i18n="close_wisdom">好的，放下吧</button>
             </div>
         </div>
     </div>
@@ -132,17 +146,17 @@
     <div id="custom-time-modal" class="modal-overlay hidden">
         <div class="modal-content glass-panel">
             <div class="modal-header">
-                <h2>Set Focus Duration</h2>
-                <p>設定您的專注長度 (1-120 分鐘)</p>
+                <h2 data-i18n="set_duration">Set Focus Duration</h2>
+                <p data-i18n="duration_range">設定您的專注長度 (1-120 分鐘)</p>
             </div>
             <div class="modal-body">
                 <div class="input-group">
                     <input type="number" id="custom-minutes-input" min="1" max="120" value="25">
-                    <span>min</span>
+                    <span data-i18n="min_unit">min</span>
                 </div>
                 <div class="modal-actions">
-                    <button id="save-custom-time" class="btn primary">確認設定</button>
-                    <button id="cancel-custom-time" class="btn secondary">取消</button>
+                    <button id="save-custom-time" class="btn primary" data-i18n="confirm">確認設定</button>
+                    <button id="cancel-custom-time" class="btn secondary" data-i18n="cancel">取消</button>
                 </div>
             </div>
         </div>
