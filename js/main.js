@@ -6,6 +6,7 @@
 // --- 狀態變數 ---
 let currentLang = 'en';
 let dailyAIQuotes = { zh: [], en: [], ja: [] };
+let rafId = null; // 處理 requestAnimationFrame 的 ID
 
 // --- 多語系與 AI 格言載入 ---
 async function loadDailyQuotes() {
@@ -80,7 +81,21 @@ function updateQuoteDisplay() {
     const aiQuotes = dailyAIQuotes[currentLang] || [];
     const staticQuotes = t('quotes');
     const combinedQuotes = aiQuotes.length > 0 ? aiQuotes : staticQuotes;
-    elements.quoteText.textContent = combinedQuotes[Math.floor(Math.random() * combinedQuotes.length)];
+    const newQuote = combinedQuotes[Math.floor(Math.random() * combinedQuotes.length)];
+    
+    elements.quoteText.classList.add('fade-out');
+    
+    // 等待淡出才更新內容與縮放面板
+    setTimeout(() => {
+        animatePanelResize(elements.mainPanel, () => {
+            elements.quoteText.textContent = newQuote;
+        });
+        
+        // 更新完後淡入
+        setTimeout(() => {
+            elements.quoteText.classList.remove('fade-out');
+        }, 50);
+    }, 300);
 }
 
 // --- 計時器核心 logic ---
@@ -139,8 +154,70 @@ const elements = {
     increaseTime: document.getElementById('increase-time'),
     saveCustomTime: document.getElementById('save-custom-time'),
     cancelCustomTime: document.getElementById('cancel-custom-time'),
-    notiToggle: document.getElementById('noti-toggle')
+    notiToggle: document.getElementById('noti-toggle'),
+    mainPanel: document.querySelector('.container > .glass-panel')
 };
+
+// --- 面板尺寸平滑縮放工具 (更強健的 JS + CSS 混合方案) ---
+function animatePanelResize(panel, contentUpdateFn) {
+    if (!panel) return contentUpdateFn();
+
+    // 1. 紀錄開始時的固定尺寸
+    const startWidth = panel.offsetWidth;
+    const startHeight = panel.offsetHeight;
+    
+    // 預先固定，防止內容更新時瞬間跳動
+    panel.style.width = startWidth + 'px';
+    panel.style.height = startHeight + 'px';
+    panel.style.overflow = 'hidden';
+    panel.style.transition = 'none';
+
+    // 2. 執行內容更新
+    contentUpdateFn();
+
+    // 3. 測量新尺寸 (使用雙重 Frame 確保佈局已更新)
+    requestAnimationFrame(() => {
+        panel.style.width = 'auto';
+        panel.style.height = 'auto';
+        
+        const endWidth = panel.offsetWidth;
+        const endHeight = panel.offsetHeight;
+
+        // 【深層優化】鎖定內部容器寬度
+        // 為了解決放大時文字因父容器還在縮小的狀態而「瞬間換行」的問題
+        // 我們將內部的標題與內容區塊全部顯式鎖定在目標寬度 (扣除 padding 的內容區域)
+        const header = panel.querySelector('header');
+        if (header) {
+            header.style.width = (endWidth - 80) + 'px'; // 40px padding * 2
+            header.style.flexShrink = '0';
+        }
+
+        // 回到原始點，準備開始動畫
+        panel.style.width = startWidth + 'px';
+        panel.style.height = startHeight + 'px';
+
+        // 強制重繪
+        void panel.offsetWidth; 
+        
+        // 4. 套用過渡與目標尺寸
+        panel.style.transition = 'width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        
+        panel.style.width = endWidth + 'px';
+        panel.style.height = endHeight + 'px';
+        
+        // 5. 結束後清除行內樣式，恢復 CSS 定義
+        setTimeout(() => {
+            panel.style.width = '';
+            panel.style.height = '';
+            panel.style.overflow = '';
+            panel.style.transition = '';
+            if (header) {
+                header.style.width = '';
+                header.style.flexShrink = '';
+            }
+        }, 650);
+    });
+}
 
 // --- Web Worker 初始化 ---
 function initWorker() {
@@ -304,7 +381,18 @@ function setMode(modeKey, customMinutes = null) {
     totalTime = duration * 60;
     timeLeft = totalTime;
     
-    elements.statusText.textContent = t(modeCfg.textKey);
+    elements.statusText.classList.add('fade-out');
+    
+    setTimeout(() => {
+        animatePanelResize(elements.mainPanel, () => {
+            elements.statusText.textContent = t(modeCfg.textKey);
+        });
+        
+        setTimeout(() => {
+            elements.statusText.classList.remove('fade-out');
+        }, 50);
+    }, 300);
+
     elements.modeBtns.forEach(btn => {
         btn.classList.toggle('active', btn.id === modeCfg.id);
     });
