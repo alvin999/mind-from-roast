@@ -564,6 +564,15 @@ header p {
     text-align: center;
     font-family: inherit;
     transition: all 0.3s ease;
+    /* 隱藏原生 Spinner (Chrome, Safari, Edge, Opera) */
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.input-group input::-webkit-outer-spin-button,
+.input-group input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .input-group input:focus {
@@ -571,6 +580,41 @@ header p {
     background: rgba(255, 255, 255, 0.2);
     border-color: var(--accent-color);
     box-shadow: 0 0 15px rgba(255, 138, 138, 0.3);
+}
+
+/* 自訂增減按鈕 */
+.num-ctrl-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.num-ctrl-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.num-ctrl-btn:active {
+    transform: scale(0.92);
+}
+
+.num-ctrl-btn svg {
+    transition: all 0.3s ease;
+}
+
+.num-ctrl-btn:hover svg {
+    filter: drop-shadow(0 0 5px var(--accent-color));
 }
 
 .input-group span {

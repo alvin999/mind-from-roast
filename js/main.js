@@ -85,9 +85,9 @@ function updateQuoteDisplay() {
 
 // --- 計時器核心 logic ---
 const getModeConfig = () => ({
-    FOCUS: { id: 'work-mode', textKey: 'focus_time', default: 25 },
-    SHORT_BREAK: { id: 'short-break-mode', textKey: 'short_break', default: 5 },
-    LONG_BREAK: { id: 'long-break-mode', textKey: 'long_break', default: 15 }
+    FOCUS: { id: 'work-mode', textKey: 'focus_time', default: 25, options: [25, 45, 60] },
+    SHORT_BREAK: { id: 'short-break-mode', textKey: 'short_break', default: 5, options: [5, 10, 15] },
+    LONG_BREAK: { id: 'long-break-mode', textKey: 'long_break', default: 15, options: [15, 20, 30] }
 });
 
 let timeLeft = 25 * 60;
@@ -135,6 +135,8 @@ const elements = {
     closeModal: document.getElementById('close-modal'),
     customModal: document.getElementById('custom-time-modal'),
     customInput: document.getElementById('custom-minutes-input'),
+    decreaseTime: document.getElementById('decrease-time'),
+    increaseTime: document.getElementById('increase-time'),
     saveCustomTime: document.getElementById('save-custom-time'),
     cancelCustomTime: document.getElementById('cancel-custom-time'),
     notiToggle: document.getElementById('noti-toggle')
@@ -270,22 +272,65 @@ function pauseTimer() {
 
 function resetTimer() {
     pauseTimer();
-    timeLeft = totalTime;
-    if (timerWorker) {
-        timerWorker.postMessage({ action: 'reset', value: timeLeft });
-    }
-    updateDisplay();
+    
+    // 獲取該模式的系統初始預設值
+    const modeCfg = getModeConfig()[currentMode];
+    
+    // 清除該模式的自訂記憶 (讓使用者點擊重設時能徹底恢復初始狀態)
+    localStorage.removeItem(`muda_${currentMode.toLowerCase()}_duration`);
+    
+    // 重新呼叫 setMode（不帶自訂分鐘數）以套用預設值並更新 UI 按鈕狀態
+    setMode(currentMode);
+    
+    // 確保通知日誌有記錄
+    addLog(t('log_reset_mode', { mode: t(modeCfg.textKey) }));
 }
 
 function setMode(modeKey, customMinutes = null) {
     currentMode = modeKey;
     const modeCfg = getModeConfig()[modeKey];
-    totalTime = (customMinutes || modeCfg.default) * 60;
+    
+    // 如果有提供分鐘數，則儲存為該模式的專屬時間
+    if (customMinutes) {
+        localStorage.setItem(`muda_${modeKey.toLowerCase()}_duration`, customMinutes);
+        // 如果是自訂按鈕設定的，也同步更新 customInput 的顯示
+        if (elements.customInput) elements.customInput.value = customMinutes;
+    }
+    
+    // 優先讀取該模式的儲存時間，否則用預設值
+    const savedDuration = localStorage.getItem(`muda_${modeKey.toLowerCase()}_duration`);
+    const duration = savedDuration ? parseInt(savedDuration) : modeCfg.default;
+    
+    totalTime = duration * 60;
     timeLeft = totalTime;
+    
     elements.statusText.textContent = t(modeCfg.textKey);
     elements.modeBtns.forEach(btn => {
         btn.classList.toggle('active', btn.id === modeCfg.id);
     });
+
+    // 更新快速選擇按鈕的文字與數值
+    const quickBtns = Array.from(elements.durationBtns).filter(btn => btn.id !== 'custom-time-btn');
+    quickBtns.forEach((btn, index) => {
+        if (modeCfg.options[index]) {
+            btn.dataset.time = modeCfg.options[index];
+            btn.textContent = modeCfg.options[index];
+            btn.style.display = 'inline-block';
+        } else {
+            btn.style.display = 'none';
+        }
+    });
+
+    // 更新 Active 狀態
+    elements.durationBtns.forEach(btn => {
+        const isMatch = btn.dataset.time == duration;
+        btn.classList.toggle('active', isMatch);
+        if (btn.id === 'custom-time-btn') {
+            const isDefaultOption = modeCfg.options.includes(duration);
+            btn.classList.toggle('active', !isDefaultOption);
+        }
+    });
+
     updateQuoteDisplay();
     updateDisplay();
     pauseTimer();
@@ -351,7 +396,16 @@ if (elements.solveNo) elements.solveNo.onclick = () => handleWisdomAnswer('NO');
 if (elements.closeModal) {
     elements.closeModal.onclick = () => {
         elements.modal.classList.add('hidden');
-        if (completedPomos % 4 === 0) setMode('LONG_BREAK'); else setMode('SHORT_BREAK');
+        
+        // 如果是自訂時間且在專注模式，則維持在專注模式，不自動跳到休息
+        const savedFocus = localStorage.getItem('muda_focus_duration');
+        const defaultFocus = getModeConfig().FOCUS.default;
+        
+        if (currentMode === 'FOCUS' && savedFocus && parseInt(savedFocus) !== defaultFocus) {
+            setMode('FOCUS');
+        } else {
+            if (completedPomos % 4 === 0) setMode('LONG_BREAK'); else setMode('SHORT_BREAK');
+        }
     };
 }
 
@@ -381,6 +435,19 @@ elements.saveCustomTime.onclick = () => {
         document.getElementById('custom-time-btn').classList.add('active');
     } else alert(t('alert_invalid_time'));
 };
+
+if (elements.decreaseTime) {
+    elements.decreaseTime.onclick = () => {
+        let val = parseInt(elements.customInput.value);
+        if (val > 1) elements.customInput.value = val - 1;
+    };
+}
+if (elements.increaseTime) {
+    elements.increaseTime.onclick = () => {
+        let val = parseInt(elements.customInput.value);
+        if (val < 120) elements.customInput.value = val + 1;
+    };
+}
 elements.cancelCustomTime.onclick = () => elements.customModal.classList.add('hidden');
 elements.notiToggle.onclick = requestNotificationPermission;
 document.getElementById('work-mode').onclick = () => setMode('FOCUS');
@@ -409,9 +476,12 @@ document.addEventListener('click', () => { elements.themeOptions.classList.add('
     setLanguage(detectLanguage());
     const savedTheme = localStorage.getItem('muda_theme') || 'red';
     setTheme(savedTheme);
+    
+    // 初始化模式並套用上次的設定
+    setMode('FOCUS');
+
     initWorker();
     updateNotiUI();
     renderStats();
-    updateDisplay();
     addLog(t('log_start'));
 })();
