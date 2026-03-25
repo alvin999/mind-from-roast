@@ -35,6 +35,15 @@
 
 ---
 
+## 音訊資源來源
+本專案使用的高品質環境音資源如下：
+- **White/Pink/Brown Noise**: 透過 Web Audio API 即時運算生成。
+- **咖啡店環境音 (Cafe Ambience)**: 源自 [Freesound - air.totem](https://freesound.org/people/air.totem/sounds/745625/) (CC0 1.0 授權)。
+- **溫和雨聲 (Gentle Rain)**: 源自 [Orange Free Sounds](https://www.orangefreesounds.com/) (CC BY-NC 4.0 授權)。
+- **風鈴聲 (Wind Chime)**: 源自 [Pixabay](https://pixabay.com/sound-effects/film-special-effects-wind-chime-small-64660/) (Pixabay Content License)。
+
+---
+
 ## 技術架構 (Technological Stack)
 
 - **核心**：Vanilla JS (ES6+), HTML5, CSS3, Web Workers API

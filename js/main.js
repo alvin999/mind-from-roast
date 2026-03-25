@@ -155,6 +155,9 @@ const elements = {
     saveCustomTime: document.getElementById('save-custom-time'),
     cancelCustomTime: document.getElementById('cancel-custom-time'),
     notiToggle: document.getElementById('noti-toggle'),
+    ambientBtns: document.querySelectorAll('.ambient-btn'),
+    ambientSliders: document.querySelectorAll('.ambient-slider-mini'),
+    ambientReset: document.getElementById('ambient-reset'),
     mainPanel: document.querySelector('.container > .glass-panel')
 };
 
@@ -542,6 +545,102 @@ document.getElementById('work-mode').onclick = () => setMode('FOCUS');
 document.getElementById('short-break-mode').onclick = () => setMode('SHORT_BREAK');
 document.getElementById('long-break-mode').onclick = () => setMode('LONG_BREAK');
 
+// --- 環境音事件綁定 ---
+elements.ambientBtns.forEach(btn => {
+    btn.onclick = async () => {
+        const type = btn.dataset.type;
+        const isActive = btn.classList.contains('active');
+        
+        // 確保已初始化 (傳入目前的音量值)
+        if (!window.ambientAudio.isInitialized) {
+            const initialVolumes = {};
+            elements.ambientSliders.forEach(s => {
+                initialVolumes[s.dataset.type] = parseFloat(s.value);
+            });
+            await window.ambientAudio.init(initialVolumes);
+            
+            // 第一次初始化後，自動啟動所有處於 active 狀態的按鈕
+            elements.ambientBtns.forEach(b => {
+                if (b.classList.contains('active') && b !== btn) {
+                    window.ambientAudio.toggle(b.dataset.type, true);
+                }
+            });
+        }
+        
+        // 切換狀態
+        const newState = !isActive;
+        btn.classList.toggle('active', newState);
+        window.ambientAudio.toggle(type, newState);
+        
+        // 保存狀態到 localStorage
+        const savedState = JSON.parse(localStorage.getItem('muda_ambient_state') || '{}');
+        savedState[type] = newState;
+        localStorage.setItem('muda_ambient_state', JSON.stringify(savedState));
+    };
+});
+
+elements.ambientSliders.forEach(slider => {
+    slider.oninput = (e) => {
+        const type = e.target.dataset.type;
+        const val = parseFloat(e.target.value);
+        
+        if (window.ambientAudio.isInitialized) {
+            window.ambientAudio.setVolume(type, val);
+        }
+        
+        // 保存音量到 localStorage
+        const savedVol = JSON.parse(localStorage.getItem('muda_ambient_volume') || '{}');
+        savedVol[type] = val;
+        localStorage.setItem('muda_ambient_volume', JSON.stringify(savedVol));
+    };
+});
+
+if (elements.ambientReset) {
+    elements.ambientReset.onclick = () => {
+        const defaultVol = 0.5;
+        const savedVol = {};
+        
+        elements.ambientSliders.forEach(slider => {
+            const type = slider.dataset.type;
+            slider.value = defaultVol;
+            savedVol[type] = defaultVol;
+            
+            if (window.ambientAudio.isInitialized) {
+                window.ambientAudio.setVolume(type, defaultVol);
+            }
+        });
+        
+        // 保存到 localStorage
+        localStorage.setItem('muda_ambient_volume', JSON.stringify(savedVol));
+        
+        // 加上一個旋轉動畫效果
+        const icon = elements.ambientReset.querySelector('svg');
+        icon.style.transition = 'transform 0.5s ease';
+        icon.style.transform = 'rotate(360deg)';
+        setTimeout(() => icon.style.transform = 'rotate(0deg)', 500);
+    };
+}
+
+// 初始化音訊狀態 (從 localStorage 回復)
+function restoreAmbientState() {
+    const savedState = JSON.parse(localStorage.getItem('muda_ambient_state') || '{}');
+    const savedVol = JSON.parse(localStorage.getItem('muda_ambient_volume') || '{}');
+    
+    elements.ambientBtns.forEach(btn => {
+        const type = btn.dataset.type;
+        if (savedState[type]) {
+            btn.classList.add('active');
+        }
+    });
+
+    elements.ambientSliders.forEach(slider => {
+        const type = slider.dataset.type;
+        if (savedVol[type] !== undefined) {
+            slider.value = savedVol[type];
+        }
+    });
+}
+
 function setTheme(theme) {
     document.body.classList.forEach(cls => { if (cls.startsWith('theme-')) document.body.classList.remove(cls); });
     document.body.classList.add(`theme-${theme}`);
@@ -571,5 +670,6 @@ document.addEventListener('click', () => { elements.themeOptions.classList.add('
     initWorker();
     updateNotiUI();
     renderStats();
+    restoreAmbientState();
     addLog(t('log_start'));
 })();

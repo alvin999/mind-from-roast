@@ -125,6 +125,53 @@
                 <!-- Log entries will be added here -->
             </div>
         </div>
+
+        <!-- 環境音獨立面板 -->
+        <div class="ambient-panel glass-panel">
+            <div class="panel-header-row">
+                <h3 data-i18n="ambient_title">Ambient</h3>
+                <button id="ambient-reset" class="icon-btn-mini" title="Reset All Volumes" data-i18n-title="reset_ambient">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
+                </button>
+            </div>
+            <div class="ambient-grid">
+                <!-- White Noise -->
+                <div class="ambient-control">
+                    <button class="ambient-btn" data-type="white" title="White Noise" data-i18n-title="white_noise">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 17 7"></polyline><polyline points="7 2 7 7"></polyline><polyline points="2 13 22 13"></polyline></svg>
+                    </button>
+                    <input type="range" class="ambient-slider-mini" min="0" max="1" step="0.01" value="0.5" data-type="white">
+                </div>
+                <!-- Pink Noise -->
+                <div class="ambient-control">
+                    <button class="ambient-btn" data-type="pink" title="Pink Noise" data-i18n-title="pink_noise">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg>
+                    </button>
+                    <input type="range" class="ambient-slider-mini" min="0" max="1" step="0.01" value="0.5" data-type="pink">
+                </div>
+                <!-- Brown Noise -->
+                <div class="ambient-control">
+                    <button class="ambient-btn" data-type="brown" title="Brown Noise" data-i18n-title="brown_noise">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg>
+                    </button>
+                    <input type="range" class="ambient-slider-mini" min="0" max="1" step="0.01" value="0.5" data-type="brown">
+                </div>
+                <!-- Cafe -->
+                <div class="ambient-control">
+                    <button class="ambient-btn" data-type="cafe" title="Cafe" data-i18n-title="cafe_ambient">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line></svg>
+                    </button>
+                    <input type="range" class="ambient-slider-mini" min="0" max="1" step="0.01" value="0.5" data-type="cafe">
+                </div>
+                <!-- Rain -->
+                <div class="ambient-control">
+                    <button class="ambient-btn" data-type="rain" title="Rain" data-i18n-title="rain_ambient">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.89c0-4 3.12-7.3 7-7.82a7.44 7.44 0 0 1 1.48-.14 7 7 0 0 1 1.44 13.85"></path><path d="M16 13a5 5 0 1 1-4.9 6H5a3 3 0 0 1 0-6Z"></path><line x1="16" y1="13" x2="14" y2="21"></line><line x1="8" y1="13" x2="6" y2="21"></line><line x1="12" y1="15" x2="10" y2="23"></line></svg>
+                    </button>
+                    <input type="range" class="ambient-slider-mini" min="0" max="1" step="0.01" value="0.5" data-type="rain">
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- 智慧問答彈窗 -->
@@ -174,9 +221,12 @@
         </div>
     </div>
 
+    </div>
+
     <!-- 音效庫 (靜音載入) - 使用本地風鈴音效 -->
     <audio id="bell-sound" src="assets/audio/wind-chime.mp3" preload="auto"></audio>
 
+    <script src="js/audio_manager.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

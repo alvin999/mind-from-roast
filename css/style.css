@@ -748,3 +748,146 @@ header p {
         height: 450px;
     }
 }
+/* 環境音面板特有樣式 */
+.ambient-panel {
+    flex: 0 1 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 240px;
+}
+
+.ambient-panel h3 {
+    margin-bottom: 5px;
+    text-align: center;
+    font-size: 1.2rem;
+    opacity: 0.8;
+}
+
+.ambient-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 5px;
+}
+
+.panel-header-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.ambient-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px 5px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.ambient-control:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.ambient-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ambient-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.ambient-btn.active {
+    background: var(--accent-color);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    box-shadow: 0 0 15px var(--accent-color);
+}
+
+/* 迷你水平 Slider */
+.ambient-slider-mini {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    max-width: 60px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    outline: none;
+}
+
+.ambient-slider-mini::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    background: white;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 1px solid var(--accent-color);
+}
+
+.ambient-slider-mini::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    background: white;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 1px solid var(--accent-color);
+}
+
+.icon-btn-mini {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.icon-btn-mini:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    transform: rotate(45deg);
+}
+
+/* 響應式調整 */
+@media (max-width: 900px) {
+    .ambient-panel {
+        flex: 1;
+        max-width: none;
+        width: 100%;
+    }
+    
+    .ambient-grid {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .ambient-control {
+        flex: 1 1 100%;
+    }
+}
