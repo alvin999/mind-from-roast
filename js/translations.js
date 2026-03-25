@@ -50,8 +50,11 @@ const TRANSLATIONS = {
         white_noise: "白噪音",
         pink_noise: "粉紅雜訊",
         brown_noise: "褐雜訊",
-        cafe_ambient: "咖啡店環境",
-        rain_ambient: "溫和雨聲",
+        cafe_ambient: "Cafe",
+        rain_ambient: "Rain",
+        theme_title: "背景主題",
+        theme_zen: "禪風靜謐",
+        theme_cafe: "午後咖啡",
         quotes: [
             "深呼吸，感受當下。",
             "每一小步都是進步。",

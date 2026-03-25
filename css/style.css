@@ -758,10 +758,67 @@ header p {
 }
 
 .ambient-panel h3 {
-    margin-bottom: 5px;
-    text-align: center;
-    font-size: 1.2rem;
-    opacity: 0.8;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* 主題切換區域 */
+.theme-section {
+    padding: 0 5px;
+    margin-bottom: 15px;
+}
+
+.section-label {
+    font-size: 0.8rem;
+    opacity: 0.6;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.theme-switcher {
+    display: flex;
+    gap: 12px;
+}
+
+.theme-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 4px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.theme-btn.active {
+    border-color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+}
+
+.theme-preview {
+    height: 30px;
+    border-radius: 6px;
+    width: 100%;
+}
+
+.zen-bg { background: linear-gradient(45deg, #1a1a2e, #16213e); }
+.cafe-bg { background: linear-gradient(45deg, #2c1810, #4a3728); }
+
+/* 影片切換動畫 */
+#bg-video {
+    transition: opacity 0.8s ease;
+}
+
+#bg-video.fading {
+    opacity: 0;
 }
 
 .ambient-grid {

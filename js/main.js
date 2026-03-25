@@ -158,6 +158,8 @@ const elements = {
     ambientBtns: document.querySelectorAll('.ambient-btn'),
     ambientSliders: document.querySelectorAll('.ambient-slider-mini'),
     ambientReset: document.getElementById('ambient-reset'),
+    themeBtns: document.querySelectorAll('.theme-btn'),
+    bgVideo: document.getElementById('bg-video'),
     mainPanel: document.querySelector('.container > .glass-panel')
 };
 
@@ -621,6 +623,51 @@ if (elements.ambientReset) {
     };
 }
 
+// --- 背景主題切換邏輯 ---
+const themes = {
+    'zen': 'assets/video/bg_pingpong.mp4',
+    'cafe': 'assets/video/bg2_pingpong.mp4'
+};
+
+elements.themeBtns.forEach(btn => {
+    btn.onclick = () => {
+        const theme = btn.dataset.theme;
+        if (btn.classList.contains('active')) return;
+        
+        // 切換按鈕狀態
+        elements.themeBtns.forEach(b => b.classList.contains('active') && b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // 執行影片切換動效
+        const video = elements.bgVideo;
+        video.classList.add('fading');
+        
+        setTimeout(() => {
+            video.src = themes[theme];
+            video.load();
+            video.play().catch(e => console.log("Video play failed:", e));
+            
+            video.onloadeddata = () => {
+                video.classList.remove('fading');
+            };
+        }, 800); // 與 CSS transition 時間一致
+        
+        // 保存主題
+        localStorage.setItem('muda_theme', theme);
+    };
+});
+
+// 初始化背景主題
+function restoreTheme() {
+    const savedTheme = localStorage.getItem('muda_theme');
+    if (savedTheme && themes[savedTheme]) {
+        const targetBtn = Array.from(elements.themeBtns).find(b => b.dataset.theme === savedTheme);
+        if (targetBtn) {
+            targetBtn.click();
+        }
+    }
+}
+
 // 初始化音訊狀態 (從 localStorage 回復)
 function restoreAmbientState() {
     const savedState = JSON.parse(localStorage.getItem('muda_ambient_state') || '{}');
@@ -669,7 +716,9 @@ document.addEventListener('click', () => { elements.themeOptions.classList.add('
 
     initWorker();
     updateNotiUI();
-    renderStats();
+    restoreSettings();
+    restoreTheme();
     restoreAmbientState();
+    updateUI();
     addLog(t('log_start'));
 })();
