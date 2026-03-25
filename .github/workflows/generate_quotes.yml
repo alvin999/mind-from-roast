@@ -31,8 +31,8 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config --local user.email "bingoppp@gmail.com"
+          git config --local user.name "alvin999"
           git add data/daily_quotes.json
           git commit -m "Update daily quotes [skip ci]" || echo "No changes to commit"
           git push
