@@ -24,6 +24,15 @@ class AmbientAudioManager {
         this.context = new AudioContext();
         await this.context.resume();
         
+        // 載入 Noise Processor Worklet
+        try {
+            await this.context.audioWorklet.addModule('js/noise-processor.js');
+            this.workletLoaded = true;
+        } catch (e) {
+            console.warn("Failed to load AudioWorklet, noise might not work:", e);
+            this.workletLoaded = false;
+        }
+
         // 初始化所有音軌的 GainNode
         for (const key in this.sources) {
             const source = this.sources[key];
@@ -83,60 +92,25 @@ class AmbientAudioManager {
         }
     }
 
-    // --- 雜訊生成器 (改用 AudioBuffer 以提升效能並避免預廢棄警告) ---
-
-    createNoiseBuffer(type) {
-        const sampleRate = this.context.sampleRate;
-        const duration = 5; // 生成 5 秒的循環音
-        const buffer = this.context.createBuffer(1, sampleRate * duration, sampleRate);
-        const data = buffer.getChannelData(0);
-
-        if (type === 'white') {
-            for (let i = 0; i < data.length; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
-        } else if (type === 'pink') {
-            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-            for (let i = 0; i < data.length; i++) {
-                const white = Math.random() * 2 - 1;
-                b0 = 0.99886 * b0 + white * 0.0555179;
-                b1 = 0.99332 * b1 + white * 0.0750371;
-                b2 = 0.96900 * b2 + white * 0.1538520;
-                b3 = 0.86650 * b3 + white * 0.3104856;
-                b4 = 0.55000 * b4 + white * 0.5329522;
-                b5 = -0.7616 * b5 - white * 0.0168980;
-                data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-                data[i] *= 0.11;
-                b6 = white * 0.115926;
-            }
-        } else if (type === 'brown') {
-            let lastOut = 0.0;
-            for (let i = 0; i < data.length; i++) {
-                const white = Math.random() * 2 - 1;
-                const out = (lastOut + (0.02 * white)) / 1.002;
-                data[i] = out * 3.5;
-                lastOut = out;
-            }
-        }
-        return buffer;
-    }
+    // --- 雜訊生成器 (使用 AudioWorklet 以提徹底消除斷層) ---
 
     startNoise(type) {
-        if (this.sources[type].node) return;
+        if (!this.workletLoaded || this.sources[type].node) return;
 
-        const buffer = this.createNoiseBuffer(type);
-        const node = this.context.createBufferSource();
-        node.buffer = buffer;
-        node.loop = true;
+        // 轉換類型為處理器參數
+        const typeMap = { 'white': 0, 'pink': 1, 'brown': 2 };
+        const typeValue = typeMap[type] !== undefined ? typeMap[type] : 0;
+
+        const node = new AudioWorkletNode(this.context, 'noise-processor', {
+            parameterData: { type: typeValue }
+        });
+
         node.connect(this.sources[type].gain);
-        node.start();
-        
         this.sources[type].node = node;
     }
 
     stopNoise(type) {
         if (this.sources[type].node) {
-            this.sources[type].node.stop();
             this.sources[type].node.disconnect();
             this.sources[type].node = null;
         }
