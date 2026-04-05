@@ -760,11 +760,12 @@ header p {
 }
 /* 環境音面板特有樣式 */
 .ambient-panel {
-    flex: 0 1 280px;
+    flex: 0 1 310px;
     display: flex;
     flex-direction: column;
     gap: 15px;
-    min-width: 240px;
+    min-width: 280px;
+    padding: 40px 25px;
 }
 
 .ambient-panel h3 {

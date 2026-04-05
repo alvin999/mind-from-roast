@@ -131,6 +131,7 @@ const TRANSLATIONS = {
         brown_noise: "Brown Noise",
         cafe_ambient: "Cafe Ambience",
         rain_ambient: "Gentle Rain",
+        theme_title: "Ambient Theme",
         quotes: [
             "Take a deep breath.",
             "Small steps every day.",
@@ -207,6 +208,7 @@ const TRANSLATIONS = {
         brown_noise: "ブラウンノイズ",
         cafe_ambient: "カフェの環境音",
         rain_ambient: "穏やかな雨音",
+        theme_title: "背景テーマ",
         quotes: [
             "深呼吸して、今を感じて。",
             "毎日の小さな一歩が大切です。",
