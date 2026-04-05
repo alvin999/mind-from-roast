@@ -166,6 +166,16 @@ header p {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
+.current-theme-dot {
+    width: 10px;
+    height: 10px;
+    background-color: var(--accent-color);
+    border-radius: 50%;
+    display: inline-block;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
 .icon-toggle-btn.active {
     background: rgba(255, 255, 255, 0.25);
     border-color: var(--accent-color);
