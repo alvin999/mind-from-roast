@@ -113,29 +113,39 @@ let currentMode = 'FOCUS';
 let completedPomos = 0;
 let isNotificationEnabled = localStorage.getItem('muda_notifications') === 'true';
 
-// 智慧初始化 stats 並處理版本遷移
+// 初始化 stats，處理兩種情境：無資料（或格式不符）/ 換日重置
 function initStats() {
-    let raw = localStorage.getItem('muda_stats');
-    let data = raw ? JSON.parse(raw) : null;
-    
-    // 如果是舊版結構 (直接在根部)，轉換為新版
-    if (data && data.pomos !== undefined && data.today === undefined) {
-        data = {
-            today: {
-                pomos: data.pomos || 0,
-                minutes: data.minutes || 0,
-                wisdom: data.wisdom || 0,
-                logs: data.logs || [],
-                date: todayStr
-            },
-            history: []
-        };
-    } else if (!data || !data.today) {
-        data = {
-            today: { pomos: 0, minutes: 0, wisdom: 0, logs: [], date: todayStr },
-            history: []
-        };
+    const createFreshToday = () => ({ pomos: 0, minutes: 0, wisdom: 0, logs: [], date: todayStr });
+    const createFreshStats = () => ({ today: createFreshToday(), history: [] });
+
+    let data;
+    try {
+        const raw = localStorage.getItem('muda_stats');
+        data = raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        console.warn('Stats 資料損毀，重新初始化。', e);
+        data = null;
     }
+
+    // 情境 1：無資料或格式不符（含舊版本）→ 全新初始化
+    if (!data?.today) return createFreshStats();
+
+    // 情境 2：換日重置
+    if (data.today.date !== todayStr) {
+        if (data.today.pomos > 0 || data.today.minutes > 0) {
+            data.history = data.history || [];
+            data.history.unshift({
+                date: data.today.date,
+                pomos: data.today.pomos,
+                minutes: data.today.minutes,
+                wisdom: data.today.wisdom
+            });
+            if (data.history.length > 30) data.history.pop();
+        }
+        data.today = createFreshToday();
+        localStorage.setItem('muda_stats', JSON.stringify(data));
+    }
+
     return data;
 }
 
@@ -825,7 +835,7 @@ document.addEventListener('click', () => { elements.themeOptions.classList.add('
     restoreAmbientState();
     renderStats(); // 確保統計數據在啟動時渲染
     updateUI();
-    addLog(t('log_start'));
+    if (stats.today.logs.length === 0) addLog(t('log_start'));
 
     // 每分鐘檢查一次日期，防止用戶開著網頁過夜沒重設
     setInterval(() => {
