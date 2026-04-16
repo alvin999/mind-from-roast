@@ -163,7 +163,11 @@ function checkDailyReset() {
             date: todayStr
         };
         saveStats();
+        renderStats(); // 確保統計面板數字歸零
+        updateDisplay(); // 確保計時器顯示也重新讀取
+        return true; // 代表有重設
     }
+    return false;
 }
 
 const elements = {
@@ -805,6 +809,8 @@ document.addEventListener('click', () => { elements.themeOptions.classList.add('
 
 // --- 初始化入口 ---
 (async function init() {
+    checkDailyReset(); // 預先檢查日期，確保數據是最新的
+    
     await loadDailyQuotes();
     setLanguage(detectLanguage());
     const savedTheme = localStorage.getItem('muda_theme') || 'red';
@@ -813,13 +819,18 @@ document.addEventListener('click', () => { elements.themeOptions.classList.add('
     // 初始化模式並套用上次的設定
     setMode('FOCUS');
 
-    checkDailyReset();
     initWorker();
     updateNotiUI();
-    // restoreSettings(); // 移除未定義的函式呼叫
     restoreTheme();
     restoreAmbientState();
     renderStats(); // 確保統計數據在啟動時渲染
     updateUI();
     addLog(t('log_start'));
+
+    // 每分鐘檢查一次日期，防止用戶開著網頁過夜沒重設
+    setInterval(() => {
+        if (checkDailyReset()) {
+            console.log("Date changed, stats reset.");
+        }
+    }, 60000);
 })();
