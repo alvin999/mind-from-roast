@@ -7,6 +7,7 @@
 let currentLang = 'en';
 let dailyAIQuotes = { zh: [], en: [], ja: [] };
 let rafId = null; // 處理 requestAnimationFrame 的 ID
+const todayStr = new Date().toISOString().split('T')[0];
 
 // --- 多語系與 AI 格言載入 ---
 async function loadDailyQuotes() {
@@ -112,12 +113,58 @@ let currentMode = 'FOCUS';
 let completedPomos = 0;
 let isNotificationEnabled = localStorage.getItem('muda_notifications') === 'true';
 
-let stats = JSON.parse(localStorage.getItem('muda_stats')) || {
-    pomos: 0,
-    minutes: 0,
-    wisdom: 0,
-    logs: []
-};
+// 智慧初始化 stats 並處理版本遷移
+function initStats() {
+    let raw = localStorage.getItem('muda_stats');
+    let data = raw ? JSON.parse(raw) : null;
+    
+    // 如果是舊版結構 (直接在根部)，轉換為新版
+    if (data && data.pomos !== undefined && data.today === undefined) {
+        data = {
+            today: {
+                pomos: data.pomos || 0,
+                minutes: data.minutes || 0,
+                wisdom: data.wisdom || 0,
+                logs: data.logs || [],
+                date: todayStr
+            },
+            history: []
+        };
+    } else if (!data || !data.today) {
+        data = {
+            today: { pomos: 0, minutes: 0, wisdom: 0, logs: [], date: todayStr },
+            history: []
+        };
+    }
+    return data;
+}
+
+let stats = initStats();
+
+function checkDailyReset() {
+    if (stats.today.date !== todayStr) {
+        // 封存昨日數據摘要
+        if (stats.today.pomos > 0 || stats.today.minutes > 0) {
+            stats.history.unshift({
+                date: stats.today.date,
+                pomos: stats.today.pomos,
+                minutes: stats.today.minutes,
+                wisdom: stats.today.wisdom
+            });
+            if (stats.history.length > 30) stats.history.pop();
+        }
+        
+        // 重設今日
+        stats.today = {
+            pomos: 0,
+            minutes: 0,
+            wisdom: 0,
+            logs: [],
+            date: todayStr
+        };
+        saveStats();
+    }
+}
 
 const elements = {
     minutes: document.getElementById('minutes'),
@@ -160,7 +207,11 @@ const elements = {
     ambientReset: document.getElementById('ambient-reset'),
     themeBtns: document.querySelectorAll('.theme-btn'),
     bgVideo: document.getElementById('bg-video'),
-    mainPanel: document.querySelector('.container > .glass-panel')
+    mainPanel: document.querySelector('.container > .glass-panel'),
+    historyBtn: document.getElementById('history-btn'),
+    historyModal: document.getElementById('history-modal'),
+    historyContainer: document.getElementById('history-container'),
+    closeHistory: document.getElementById('close-history')
 };
 
 // --- 面板尺寸平滑縮放工具 (更強健的 JS + CSS 混合方案) ---
@@ -308,12 +359,12 @@ function saveStats() {
 }
 
 function renderStats() {
-    if (elements.statPomos) elements.statPomos.textContent = stats.pomos;
-    if (elements.statMinutes) elements.statMinutes.textContent = stats.minutes;
-    if (elements.statWisdom) elements.statWisdom.textContent = stats.wisdom;
+    if (elements.statPomos) elements.statPomos.textContent = stats.today.pomos;
+    if (elements.statMinutes) elements.statMinutes.textContent = stats.today.minutes;
+    if (elements.statWisdom) elements.statWisdom.textContent = stats.today.wisdom;
     
     if (elements.logList) {
-        elements.logList.innerHTML = stats.logs.slice().reverse().map(log => `
+        elements.logList.innerHTML = stats.today.logs.slice().reverse().map(log => `
             <div class="log-item">
                 <small class="log-time">${log.time}</small>
                 <div class="log-msg">${log.msg}</div>
@@ -325,9 +376,48 @@ function renderStats() {
 function addLog(msg) {
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    stats.logs.push({ time: timeStr, msg: msg });
-    if (stats.logs.length > 50) stats.logs.shift();
+    stats.today.logs.push({ time: timeStr, msg: msg });
+    if (stats.today.logs.length > 50) stats.today.logs.shift();
     saveStats();
+}
+
+function renderHistory() {
+    if (!elements.historyContainer) return;
+    
+    if (!stats.history || stats.history.length === 0) {
+        elements.historyContainer.innerHTML = `<div class="no-history-msg">${t('no_history')}</div>`;
+        return;
+    }
+    
+    elements.historyContainer.innerHTML = stats.history.map(item => `
+        <div class="history-item">
+            <span class="history-item-date">${item.date}</span>
+            <div class="history-item-stats">
+                <div class="history-stat">
+                    <span class="history-stat-value">${item.pomos}</span>
+                    <span class="history-stat-label">${t('pomodoros')}</span>
+                </div>
+                <div class="history-stat">
+                    <span class="history-stat-value">${item.minutes}</span>
+                    <span class="history-stat-label">${t('minutes')}</span>
+                </div>
+                <div class="history-stat">
+                    <span class="history-stat-value">${item.wisdom}</span>
+                    <span class="history-stat-label">${t('wisdom')}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleHistoryModal(show) {
+    if (!elements.historyModal) return;
+    if (show) {
+        renderHistory();
+        elements.historyModal.classList.remove('hidden');
+    } else {
+        elements.historyModal.classList.add('hidden');
+    }
 }
 
 // --- 計時器控制器 ---
@@ -436,8 +526,8 @@ function handleFinish() {
     
     if (currentMode === 'FOCUS') {
         completedPomos++;
-        stats.pomos++;
-        stats.minutes += Math.floor(totalTime / 60);
+        stats.today.pomos++;
+        stats.today.minutes += Math.floor(totalTime / 60);
         addLog(t('log_finish_focus', { min: Math.floor(totalTime / 60) }));
         sendNotification(notifyTitle, t('notify_finish_focus'));
         showWisdomModal();
@@ -463,7 +553,7 @@ function showWisdomModal() {
 }
 
 function handleWisdomAnswer(answer) {
-    stats.wisdom++;
+    stats.today.wisdom++;
     saveStats();
     const modalBody = document.querySelector('.modal-body');
     if (modalBody) modalBody.classList.add('hidden');
@@ -546,6 +636,15 @@ elements.notiToggle.onclick = requestNotificationPermission;
 document.getElementById('work-mode').onclick = () => setMode('FOCUS');
 document.getElementById('short-break-mode').onclick = () => setMode('SHORT_BREAK');
 document.getElementById('long-break-mode').onclick = () => setMode('LONG_BREAK');
+
+// --- 歷史紀錄事件 ---
+if (elements.historyBtn) elements.historyBtn.onclick = () => toggleHistoryModal(true);
+if (elements.closeHistory) elements.closeHistory.onclick = () => toggleHistoryModal(false);
+if (elements.historyModal) {
+    elements.historyModal.onclick = (e) => {
+        if (e.target === elements.historyModal) toggleHistoryModal(false);
+    };
+}
 
 // --- 環境音事件綁定 ---
 elements.ambientBtns.forEach(btn => {
@@ -714,11 +813,13 @@ document.addEventListener('click', () => { elements.themeOptions.classList.add('
     // 初始化模式並套用上次的設定
     setMode('FOCUS');
 
+    checkDailyReset();
     initWorker();
     updateNotiUI();
-    restoreSettings();
+    // restoreSettings(); // 移除未定義的函式呼叫
     restoreTheme();
     restoreAmbientState();
+    renderStats(); // 確保統計數據在啟動時渲染
     updateUI();
     addLog(t('log_start'));
 })();

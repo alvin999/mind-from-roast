@@ -841,10 +841,96 @@ header p {
 
 .panel-header-row {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
+    margin-bottom: 20px;
+}
+
+/* 歷史紀錄彈窗特有樣式 */
+.history-modal-content {
+    max-width: 500px;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.history-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: left;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.history-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+}
+
+.history-item-date {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+    display: block;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 5px;
+}
+
+.history-item-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-    margin-bottom: 15px;
+}
+
+.history-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.history-stat-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.history-stat-label {
+    font-size: 0.65rem;
+    opacity: 0.6;
+    text-transform: uppercase;
+}
+
+.no-history-msg {
+    text-align: center;
+    padding: 30px 0;
+    opacity: 0.5;
+}
+
+.icon-btn-mini {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.icon-btn-mini:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
 }
 
 .ambient-control {

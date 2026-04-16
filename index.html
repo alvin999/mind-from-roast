@@ -105,7 +105,12 @@
 
         <!-- 今日紀錄面板 -->
         <div class="records-panel glass-panel">
-            <h3 data-i18n="today_flow">Today's Flow</h3>
+            <div class="panel-header-row">
+                <h3 data-i18n="today_flow">Today's Flow</h3>
+                <button id="history-btn" class="icon-btn-mini" title="View History" data-i18n-title="history_flow">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </button>
+            </div>
             <div class="stats-grid">
                 <div class="stat-card">
                     <span class="stat-value" id="stat-pomos">0</span>
@@ -230,6 +235,24 @@
                     <button id="save-custom-time" class="btn primary" data-i18n="confirm">確認設定</button>
                     <button id="cancel-custom-time" class="btn secondary" data-i18n="cancel">取消</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 歷史紀錄彈窗 -->
+    <div id="history-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel history-modal-content">
+            <div class="modal-header">
+                <h2 data-i18n="history_flow">Flow History</h2>
+                <p data-i18n="history_desc">回顧您的專注歷程</p>
+            </div>
+            <div class="modal-body">
+                <div id="history-container" class="history-list">
+                    <!-- 歷史紀錄將由 JS 動態生成 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="close-history" class="btn secondary" data-i18n="close_history">關閉</button>
             </div>
         </div>
     </div>
