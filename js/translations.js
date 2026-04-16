@@ -3,7 +3,7 @@
  * Supports: zh (Traditional Chinese), en (English), ja (Japanese)
  */
 
-const TRANSLATIONS = {
+export const TRANSLATIONS = {
     zh: {
         title: "Mind From Roast | 脈環漏 - 療癒番茄鐘",
         focus_time: "Focus Time",
